@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+spec:
+  clusterIP: None
+  type: NodePort
+  selector:
+    app: rabbitmq
+  ports:
+  - name: aaa
+    port: 4369
+    targetPort: 4369
+  - name: bbb
+    port: 5671
+    targetPort: 5671
+  - name: erlang
+    port: 25672
+    targetPort: 25672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-web
+spec:
+  type: NodePort
+  selector:
+    app: rabbitmq
+  ports:
+  - name: website
+    port: 15672
+    targetPort: 15672
+    nodePort: 31000
+  - name: client
+    port: 5672
+    targetPort: 5672
+    nodePort: 31050
+---
+
+apiVersion: "apps/v1beta1"
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+spec:
+  serviceName: rabbitmq
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq-cluster
+        image: merapar/rabbitmq-autocluster
+        env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: RABBITMQ_DEFAULT_USER
+            value: merapar
+          - name: RABBITMQ_DEFAULT_PASS
+            value: secret_password
+          - name: RABBITMQ_ERLANG_COOKIE
+            value: secret_cookie
+          - name: RABBITMQ_MNESIA_BASE
+            value: /rabbitmq_mnesia
+        volumeMounts:
+        - name: rabbitmq-mnesia
+          mountPath: /rabbitmq_mnesia
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-mnesia
+      annotations:
+        volume.alpha.kubernetes.io/storage-class: anything
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

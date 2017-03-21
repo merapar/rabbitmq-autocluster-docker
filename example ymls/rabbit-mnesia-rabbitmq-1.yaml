@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rabbitmq-mnesia-rabbitmq-1
+  labels:
+    app: rabbitmq
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp/rabbitmq
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: rabbitmq-mnesia-rabbitmq-1
+  labels:
+    app: rabbitmq
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
