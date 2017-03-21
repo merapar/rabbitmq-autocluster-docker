@@ -1,5 +1,5 @@
 # rabbitmq-autocluster-docker
-This is the git repo for a Rabbitmq kubernetes image, capable of being deployed in a high-available cluster manner.
+This is the git repo for a Rabbitmq docker image, capable of being deployed in a high-available clustered manner.
 
 It contains:
 - Rabbit MQ 3.6 management base image
